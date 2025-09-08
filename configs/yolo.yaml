@@ -9,7 +9,7 @@ names:
   0: tree  # class names
 
 Training parameters:
-  epochs: 3
+  epochs: 30
   batch_size: 4
   imgsz: 512  # image size
 
