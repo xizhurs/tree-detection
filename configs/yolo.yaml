@@ -31,3 +31,4 @@ Augmentation:
   mosaic: 1.0  # image mosaic (probability)
   mixup: 0.0  # image mixup (probability)
   copy_paste: 0.0  # segment copy-paste (probability)
+  weight_decay: 0.1  # optimizer weight decay 5e-4
