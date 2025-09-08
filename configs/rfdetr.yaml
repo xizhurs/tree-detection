@@ -1,0 +1,34 @@
+# Dataset configuration
+dataset:
+  path: data/tiles/coco  # dataset root dir
+  num_classes: 1
+  class_names: 
+    - Tree
+
+# Training parameters
+training:
+  epochs: 10
+  batch_size: 4
+  learning_rate: 1e-4
+  grad_accum_steps: 4
+  weight_decay: 1e-1
+  num_workers: 0
+  resolution: 512
+  early_stopping: true
+
+# Model configuration
+model:
+  name: RFDETRMedium
+  encoder: dinov2_windowed_base
+  backbone_lora: false
+
+# Output configuration
+output:
+  dir: experiments
+  project_name: rfdetr-results
+
+# Additional settings
+settings:
+  distributed: false
+  use_ema: true
+  do_benchmark: false

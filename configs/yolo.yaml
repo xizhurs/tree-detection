@@ -14,8 +14,9 @@ Training parameters:
   imgsz: 512  # image size
 
 Model configuration:
-  model: yolo12n.pt  # 'n' for nano, can be 's', 'm', 'l', 'x' for other sizes
+  model: "yolo12n.pt"  # 'n' for nano, can be 's', 'm', 'l', 'x' for other sizes
   device: "mps"  # cuda device, i.e. 0 or 0,1,2,3 or cpu
+  project: "experiments"  # save to project/name
 
 Augmentation:
   hsv_h: 0.015  # image HSV-Hue augmentation (fraction)
