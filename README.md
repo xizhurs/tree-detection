@@ -4,6 +4,15 @@ Single-tree detection in high‑resolution aerial/satellite imagery. This repo c
 
 > **Status:** Work in progress. Please open issues/PRs for bugs or ideas!
 
+
+---
+
+## 📊 Example Results
+
+YOLOv11 vs RF‑DETR
+
+![detections](experiments/results/comparison.png)
+
 ---
 
 ## 🔍 What’s inside
@@ -30,6 +39,7 @@ LICENSE
 ```
 
 ---
+
 
 ## 🚀 Quick start
 
@@ -124,13 +134,6 @@ Convert pixel boxes to CRS coordinates using the GeoTIFF affine transform.
 
 ---
 
-## 📊 Example Results
-
-YOLOv11 vs RF‑DETR
-
-![detections](experiments/results/comparison.png)
-
----
 
 ## 🧰 Utilities (planned/available)
 
