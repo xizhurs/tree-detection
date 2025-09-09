@@ -12,11 +12,13 @@ Training parameters:
   epochs: 30
   batch_size: 4
   imgsz: 512  # image size
+  weight_decay: 0.1  # optimizer weight decay 5e-4
 
 Model configuration:
   model: "yolo12n.pt"  # 'n' for nano, can be 's', 'm', 'l', 'x' for other sizes
   device: "mps"  # cuda device, i.e. 0 or 0,1,2,3 or cpu
   project: "experiments"  # save to project/name
+  name: "yolo12n-results"  # save to project/name
 
 Augmentation:
   hsv_h: 0.015  # image HSV-Hue augmentation (fraction)
@@ -32,4 +34,4 @@ Augmentation:
   mosaic: 1.0  # image mosaic (probability)
   mixup: 0.0  # image mixup (probability)
   copy_paste: 0.0  # segment copy-paste (probability)
-  weight_decay: 0.1  # optimizer weight decay 5e-4
+  

@@ -208,3 +208,5 @@ __marimo__/
 data/
 experiments/
 runs
+.DS_Store
+yolo12n.pt

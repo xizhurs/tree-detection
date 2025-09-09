@@ -83,13 +83,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--input_base_dir",
         type=str,
-        default="data/tiles/coco",
+        default="data/processed_data/coco",
         help="Base directory of COCO dataset",
     )
     parser.add_argument(
         "--output_dir",
         type=str,
-        default="data/tiles/yolo",
+        default="data/processed_data/yolo",
         help="Output directory for YOLO formatted data",
     )
     parser.add_argument(
