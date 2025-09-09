@@ -1,6 +1,6 @@
 # Dataset configuration
 dataset:
-  path: data/tiles/coco  # dataset root dir
+  path: data/processed_data/coco  # dataset root dir
   num_classes: 1
   class_names: 
     - Tree

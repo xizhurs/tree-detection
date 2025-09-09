@@ -1,5 +1,5 @@
 # Train/val/test sets
-path: data/tiles/yolo  # dataset root dir
+path: data/processed_data/yolo  # dataset root dir
 train: train/images  # train images (relative to 'path')
 val: valid/images  # val images (relative to 'path')
 test: test/images  # test images (optional)
