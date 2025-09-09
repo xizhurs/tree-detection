@@ -263,8 +263,8 @@ if __name__ == "__main__":
     yolo_gj, rfd_gj = predict_tiff_to_geojson(
         tiff_path="data/tiles_scenes/clip1_colombia_r2048_c1024_w1024_h185.tif",
         out_dir="data/preds",
-        yolo_weights="experiments/best.pt",
-        rfdetr_weights="experiments/checkpoint_best_ema.pth",
+        yolo_weights="experiments/weights/best.pt",
+        rfdetr_weights="experiments/weights/checkpoint_best_ema.pth",
         tile_size=(1024, 1024),
         overlap=128,
         conf_yolo=0.25,
@@ -277,5 +277,5 @@ if __name__ == "__main__":
         gt_geojson_path="data/tiles_scenes/clip1_colombia_r2048_c1024_w1024_h185.geojson",
         yolo_geojson_path=yolo_gj,
         rfd_geojson_path=rfd_gj,
-        out_html="scene_A_map.html",
+        out_html="experiments/results/scene_A_map.html",
     )

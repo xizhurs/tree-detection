@@ -205,8 +205,11 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
-data/
-experiments/
+data/raw/
+data/tiles_scenes/
+data/processed_data/
+data/preds/
+experiments/weights/
 runs
 .DS_Store
 yolo12n.pt
