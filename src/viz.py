@@ -89,7 +89,7 @@ def compare_models_on_image(
                 cat_id_to_name[int(k)] = str(v)
 
     # -------- RF-DETR inference ---
-    model_rfdetr = RFDETRMedium(pretrain_weights=rfdetr_weights)
+    model_rfdetr = RFDETRMedium(pretrain_weights=rfdetr_weights, device="cpu")
     model_rfdetr.optimize_for_inference()
     rfd_det = model_rfdetr.predict(Image.fromarray(image), threshold=conf_rfdetr)
 
