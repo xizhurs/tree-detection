@@ -1,0 +1,37 @@
+# Train/val/test sets
+path: data/processed_data/yolo  # dataset root dir
+train: train/images  # train images (relative to 'path')
+val: valid/images  # val images (relative to 'path')
+test: test/images  # test images (optional)
+
+# Classes
+names:
+  0: tree  # class names
+
+Training parameters:
+  epochs: 30
+  batch_size: 4
+  imgsz: 512  # image size
+  weight_decay: 0.1  # optimizer weight decay 5e-4
+
+Model configuration:
+  model: "yolo12n.pt"  # 'n' for nano, can be 's', 'm', 'l', 'x' for other sizes
+  device: "mps"  # cuda device, i.e. 0 or 0,1,2,3 or cpu
+  project: "experiments"  # save to project/name
+  name: "yolo12n-results"  # save to project/name
+
+Augmentation:
+  hsv_h: 0.015  # image HSV-Hue augmentation (fraction)
+  hsv_s: 0.7  # image HSV-Saturation augmentation (fraction)
+  hsv_v: 0.4  # image HSV-Value augmentation (fraction)
+  degrees: 0.0  # image rotation (+/- deg)
+  translate: 0.1  # image translation (+/- fraction)
+  scale: 0.5  # image scale (+/- gain)
+  shear: 0.0  # image shear (+/- deg)
+  perspective: 0.0  # image perspective (+/- fraction), range 0-0.001
+  flipud: 0.0  # image flip up-down (probability)
+  fliplr: 0.5  # image flip left-right (probability)
+  mosaic: 1.0  # image mosaic (probability)
+  mixup: 0.0  # image mixup (probability)
+  copy_paste: 0.0  # segment copy-paste (probability)
+  

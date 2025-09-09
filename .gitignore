@@ -206,3 +206,7 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 data/
+experiments/
+runs
+.DS_Store
+yolo12n.pt

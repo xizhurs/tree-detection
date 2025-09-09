@@ -1,16 +1,16 @@
 import os, json, math
+import cv2
+import rasterio
+import numpy as np
+import random
+import geopandas as gpd
 from pathlib import Path
 from typing import List, Tuple, Optional, Dict
-import numpy as np
-import geopandas as gpd
 from shapely.geometry import box, MultiPolygon
-import rasterio
 from rasterio.windows import Window, from_bounds
 from rasterio.transform import array_bounds, rowcol
-import cv2
-from shapely.geometry import mapping
 from dataclasses import dataclass
-import random
+from src.util import get_split_pairs
 
 
 @dataclass
@@ -258,7 +258,7 @@ class GeoCocoBuilder:
 
 def convert_to_coco(pairs: List[Tuple[Path, Path]], split: str = "train"):
     builder = GeoCocoBuilder(
-        out_dir=f"data/tiles/coco/{split}",
+        out_dir=f"data/processed_data/coco/{split}",
         tile_size=(512, 512),
         overlap=128,
         class_id_attr=None,
@@ -275,15 +275,10 @@ def convert_to_coco(pairs: List[Tuple[Path, Path]], split: str = "train"):
 
 if __name__ == "__main__":
 
-    paths_tif = list(Path("data/raw").rglob("*.tif"))
-    paths_gj = [p.with_suffix(".geojson") for p in paths_tif]
-    # Add many sources
-    pairs = [(tif, gj) for tif, gj in zip(paths_tif, paths_gj) if os.path.exists(gj)]
-    train_pairs = [
-        (x, y) for i, (x, y) in enumerate(pairs) if "1" in x.stem or "4" in x.stem
-    ]
-    val_pairs = [(x, y) for i, (x, y) in enumerate(pairs) if "5" in x.stem]
-    test_pairs = [(x, y) for i, (x, y) in enumerate(pairs) if "2" in x.stem]
+    train_pairs, val_pairs, test_pairs = get_split_pairs(
+        root_dir=Path("data/raw"),
+        split_tiffs_first=True,
+    )
     convert_to_coco(train_pairs, split="train")
     convert_to_coco(val_pairs, split="valid")
     convert_to_coco(test_pairs, split="test")
