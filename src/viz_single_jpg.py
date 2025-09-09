@@ -64,7 +64,7 @@ def _labels_for_detections(
 
 
 def compare_models_on_image(
-    image_path: str,
+    image_path: Path,
     coco_json_path: str,
     yolo_weights: str,
     rfdetr_weights: str,
@@ -126,13 +126,14 @@ def compare_models_on_image(
 
 
 if __name__ == "__main__":
-
+    image_paths = Path("data/processed_data/coco/test").glob("*.jpg")
+    image_path = next(image_paths)  # take the first image for demo
     compare_models_on_image(
-        image_path="data/tiles/coco/test/18_1932_771_512_512.jpg",
-        coco_json_path="data/tiles/coco/test/_annotations.coco.json",
+        image_path=image_path,
+        coco_json_path="data/processed_data/coco/test/_annotations.coco.json",
         yolo_weights="experiments/best.pt",
         rfdetr_weights="experiments/checkpoint_best_total.pth",
         conf_yolo=0.25,
-        conf_rfdetr=0.5,
+        conf_rfdetr=0.25,
     )
     print("Done.")
