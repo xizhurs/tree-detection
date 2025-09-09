@@ -110,43 +110,6 @@ model = RFDETRMedium(pretrain_weights="/path/to/checkpoint.pth")
 
 Convert pixel boxes to CRS coordinates using the GeoTIFF affine transform.
 
-```python
-from pathlib import Path
-import folium, rasterio, geopandas as gpd
-from shapely.geometry import box, mapping
-
-src_path = "path/to/ortho.tif"
-with rasterio.open(src_path) as src:
-    transform = src.transform
-    crs = src.crs
-
-# example predictions (x1,y1,x2,y2 in pixels)
-preds = [{"score": 0.91, "bbox": [120, 340, 170, 395]}]
-
-def pixpoly_to_geo(poly, transform):
-    xs, ys = poly.exterior.xy
-    xs_t, ys_t = [], []
-    for cx, cy in zip(xs, ys):
-        X, Y = rasterio.transform.xy(transform, cy, cx)
-        xs_t.append(X); ys_t.append(Y)
-    return box(min(xs_t), min(ys_t), max(xs_t), max(ys_t))
-
-geoms = []
-for p in preds:
-    poly_pix = box(*p["bbox"])
-    poly_geo = pixpoly_to_geo(poly_pix, transform)
-    geoms.append({"geometry": poly_geo, "score": p["score"]})
-
-gdf = gpd.GeoDataFrame(geoms, geometry="geometry", crs=crs)
-
-center = [gdf.geometry.centroid.y.mean(), gdf.geometry.centroid.x.mean()]
-m = folium.Map(location=center, zoom_start=18, tiles="OpenStreetMap")
-for _, r in gdf.iterrows():
-    folium.GeoJson(mapping(r.geometry), name=f"score={r['score']:.2f}").add_to(m)
-m.save("detections_map.html")
-print("Saved → detections_map.html")
-```
-
 > **Google/ESRI basemaps:** you can add third‑party tile endpoints (may require API keys/licenses).
 
 ---
@@ -161,19 +124,12 @@ print("Saved → detections_map.html")
 
 ---
 
-```markdown
-## 📊 Results
+## 📊 Example Results
 
 YOLOv11 vs RF‑DETR
 
 ![detections](experiments/results/comparison.png)
-```
 
-```html
-<p float="left">
-  <img src="experiments/results/comparison.png" width="49%" />
-</p>
-```
 ---
 
 ## 🧰 Utilities (planned/available)
