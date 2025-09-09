@@ -1,5 +1,6 @@
 import math
 import folium
+import torch
 import geopandas as gpd
 import numpy as np
 import rasterio
@@ -99,6 +100,7 @@ def predict_tiff_to_geojson(
         pretrain_weights=rfdetr_weights,
         num_classes=1,
         class_names=["Tree"],
+        device="cuda" if torch.cuda.is_available() else "cpu",
     )
     rfd.optimize_for_inference()
 

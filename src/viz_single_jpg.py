@@ -132,8 +132,8 @@ if __name__ == "__main__":
         image_path=image_path,
         coco_json_path="data/processed_data/coco/test/_annotations.coco.json",
         yolo_weights="experiments/best.pt",
-        rfdetr_weights="experiments/checkpoint_best_total.pth",
-        conf_yolo=0.25,
-        conf_rfdetr=0.25,
+        rfdetr_weights="experiments/checkpoint_best_ema.pth",
+        conf_yolo=0.5,
+        conf_rfdetr=0.5,
     )
     print("Done.")
