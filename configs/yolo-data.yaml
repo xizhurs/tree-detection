@@ -1,0 +1,7 @@
+path: data/processed_data/yolo
+train: train/images
+val: valid/images
+test: test/images
+
+names:
+  0: tree
