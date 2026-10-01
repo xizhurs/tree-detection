@@ -81,6 +81,14 @@ with InferenceClient(
 See [the inference API contract](docs/inference-api.md) for the request and response
 schema. Keep endpoint tokens in environment variables or a secret manager.
 
+To host the RF-DETR checkpoint yourself, `deploy/modal_app.py` serves it on a Modal
+GPU. See [Deploying the detector on Modal](docs/deploy-modal.md):
+
+```bash
+uv sync --group deploy
+uv run modal deploy deploy/modal_app.py
+```
+
 ## Quality checks
 
 ```bash

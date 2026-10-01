@@ -13,6 +13,11 @@ Content-Type: multipart/form-data
 ```
 
 The multipart body must contain one `image` file containing an encoded JPEG tile.
+An optional `threshold` query parameter (0–1, default `0.25`) sets the minimum
+confidence. `GET /health` returns `{"status": "ok"}` without authentication.
+
+A reference implementation on Modal lives in `deploy/modal_app.py`; see
+[Deploying the detector on Modal](deploy-modal.md).
 
 ## Response
 

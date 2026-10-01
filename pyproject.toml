@@ -28,7 +28,7 @@ geo = [
     "shapely>=2.0",
 ]
 ml = [
-    "rfdetr",
+    "rfdetr>=1.11",
     "supervision>=0.20",
     "torch>=2.0",
     "torchvision>=0.15",
@@ -44,6 +44,9 @@ dev = [
     "pytest>=8.0",
     "pytest-cov>=5.0",
     "ruff>=0.9",
+]
+deploy = [
+    "modal>=1.0",
 ]
 
 [tool.hatch.build.targets.wheel]
