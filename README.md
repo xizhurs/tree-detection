@@ -1,181 +1,107 @@
 # tree-detection
 
-Single-tree detection in high‑resolution aerial/satellite imagery. This repo compares **Ultralytics YOLOv12** and a **transformer-based detector (RF‑DETR)**, and includes **geo‑aware inference** utilities so you can put detections back on a map (Folium/Leaflet) with the correct CRS.
+[![CI](https://github.com/xizhurs/tree-detection/actions/workflows/ci.yml/badge.svg)](https://github.com/xizhurs/tree-detection/actions/workflows/ci.yml)
 
-> **Status:** Work in progress. Please open issues/PRs for bugs or ideas!
+Tools for preparing tree-detection datasets from geospatial imagery and calling remotely
+hosted YOLO or RF-DETR models. Model checkpoints are not stored in this repository and
+are not downloaded by the default development or CI environments.
 
+![YOLO and RF-DETR detection comparison](experiments/results/comparison.png)
 
----
+## Requirements
 
-## 📊 Example Results
+- Python 3.11 or newer
+- [uv](https://docs.astral.sh/uv/)
 
-YOLOv11 vs RF‑DETR
+Create the core development environment:
 
-![detections](experiments/results/comparison.png)
-
----
-
-## 🔍 What’s inside
-
-- **Detectors**
-  - **YOLOv12**: fast to train and deploy.
-  - **RF‑DETR**: DETR‑family transformer, good for small objects with proper training.
-- **Geo‑aware inference**
-  - Convert pixel-space detections → **CRS coordinates** using the source GeoTIFF transform.
-  - Create **interactive Folium maps** for QA.
-- **Data & tiling**
-  - Train with **YOLO** or **COCO** format.
-  - Tiling helpers for big GeoTIFFs (chip size + overlap).
-- **Notebooks**
-  - End‑to‑end examples: training → inference → mapping.
-
-
-```
-configs/          # model & data configs
-notebooks/        # training / inference / mapping notebooks
-src/              # helpers: tiling, geo utils, converters
-README.md
-LICENSE
+```bash
+uv sync
 ```
 
----
+Install geospatial functionality without model frameworks:
 
-
-## 🚀 Quick start
-
-### 1) Environment
-
-```
-pip install -r requirements.txt
+```bash
+uv sync --extra geo
 ```
 
-### 2) Data formats
+The optional local model stack is deliberately separate because it is large:
 
-You can use **YOLO** or **COCO**. Keep a **separate, non‑overlapping test region** when possible.
-
-**YOLO format**
-
-```
-<dataset_root>/
-  images/
-    train/ *.jpg|*.png
-    val/   *.jpg|*.png
-    test/  *.jpg|*.png
-  labels/
-    train/ *.txt  # class x_center y_center width height  (normalized)
-    val/   *.txt
-    test/  *.txt
-  data.yaml        # names, nc, and split paths
+```bash
+uv sync --extra ml
 ```
 
-**COCO format**
+`uv.lock` is committed so local and CI installations resolve the same versions.
 
-```
-<dataset_root>/
-  annotations/
-    instances_train.json
-    instances_val.json
-  images/
-    train/
-    val/
-```
+## Dataset preparation
 
-If you start from **GeoTIFF + vector labels (GeoJSON/SHP/COCO)**, first **tile** them into chips (e.g., `imgsz=1024`, overlap 200–400 px). See `notebooks/` and `src/` helpers.
-
-### 3) Train — YOLOv11
-
-**Python**
+The Python package exposes helpers for deterministic scene-level splitting, GeoTIFF
+tiling, and bbox-only COCO generation:
 
 ```python
-from ultralytics import YOLO
+from pathlib import Path
 
-model = YOLO("yolo11n.pt")   # or your checkpoint
-model.train(
-    data="/path/to/data.yaml",
-    imgsz=1024,
-    epochs=100,
-    batch=16,
-    project="runs/tree_yolo",
-    name="exp",
-)
+from tree_detection.coco import build_coco_dataset
+from tree_detection.dataset import discover_source_pairs, split_pairs
+
+pairs = discover_source_pairs(Path("data/raw"))
+train, validation, test = split_pairs(pairs)
+build_coco_dataset(train, Path("data/processed_data/coco/train"))
 ```
 
-### 4) Train — RF‑DETR (COCO)
+Splitting takes place before tiling so chips from one source scene cannot leak between
+training and evaluation sets.
+
+Convert a COCO split to YOLO format with the installed command:
+
+```bash
+uv run tree-detection-convert-yolo \
+  --input-base-dir data/processed_data/coco \
+  --output-dir data/processed_data/yolo \
+  --split train
+```
+
+## Remote inference
+
+Large custom checkpoints should run on a GPU service such as Modal, RunPod, SageMaker,
+Vertex AI, or Azure ML. The repository contains a provider-neutral HTTP client:
 
 ```python
-from rfdetr import RFDETRMedium
+import os
 
-# NOTE: set num_classes to YOUR dataset (e.g., 1 for 'tree')
-model = RFDETRMedium(pretrain_weights="/path/to/checkpoint.pth")
+from tree_detection.inference import InferenceClient
 
-# Pseudocode:
-# model.fit(train_loader, val_loader, epochs=100, ...)
+with InferenceClient(
+    os.environ["TREE_DETECTION_ENDPOINT"],
+    os.environ.get("TREE_DETECTION_TOKEN"),
+) as client:
+    predictions = client.predict_file("tile.jpg")
 ```
 
-**Common pitfall:** pretrain head vs dataset classes. If you see a warning like *“num_classes mismatch… reinitializing detection head”*, ensure your model config uses the correct `num_classes` (e.g., 1). Loading only backbone weights is also fine.
+See [the inference API contract](docs/inference-api.md) for the request and response
+schema. Keep endpoint tokens in environment variables or a secret manager.
 
----
+To host the RF-DETR checkpoint yourself, `deploy/modal_app.py` serves it on a Modal
+GPU. See [Deploying the detector on Modal](docs/deploy-modal.md):
 
-## 🗺️ Geo‑aware inference & Folium
+```bash
+uv sync --group deploy
+uv run modal deploy deploy/modal_app.py
+```
 
-Convert pixel boxes to CRS coordinates using the GeoTIFF affine transform.
+## Quality checks
 
-> **Google/ESRI basemaps:** you can add third‑party tile endpoints (may require API keys/licenses).
+```bash
+uv run ruff check src/tree_detection tests
+uv run ruff format --check src/tree_detection tests
+uv run pytest
+uv build
+```
 
----
+Tests create small synthetic rasters and mock HTTP calls. They do not require data,
+network access, model weights, PyTorch, or a GPU. GitHub Actions runs linting, tests, and
+package builds on Python 3.11, 3.12, and 3.13.
 
-## ✅ Evaluation tips
+## License
 
-- **YOLO:** use built‑in `val/test` metrics (mAP@50/95, Precision/Recall).
-- **RF‑DETR:** evaluate with COCO metrics (e.g., pycocotools or `supervision.MeanAveragePrecision`).
-- Report size‑stratified AP for **small trees**.
-- Prefer larger `imgsz` (e.g., **1024**) for 10–30 cm GSD imagery.
-- Tile with **overlap** (200–400 px) to avoid edge misses.
-
----
-
-
-## 🧰 Utilities (planned/available)
-
-- COCO ↔ YOLO converters.
-- Tiling from GeoTIFF + vector labels; inverse mapping of detections.
-- Post‑processing (NMS, score thresholds, center‑point export).
-
----
-
-## 📒 Notebooks
-
-- `notebooks/train_yolo11.ipynb` — YOLO training.
-- `notebooks/train_rfdetr.ipynb` — RF‑DETR training.
-- `notebooks/infer_and_map.ipynb` — inference + Folium map.
-
----
-
-## 📦 Repro & configs
-
-- Keep experiment configs in `configs/` (dataset paths, chip size, overlap, model hyperparams).
-- Track runs with Ultralytics logs or MLflow; export ONNX if needed.
-
----
-
-## 🧭 Roadmap
-
-- [ ] End‑to‑end **tiling + label‑export** scripts in `src/`.
-- [ ] **COCO↔YOLO** converters and tests.
-- [ ] Minimal **pretrained checkpoint** for demo.
-- [ ] **Google/ESRI basemap** examples for Folium.
-- [ ] Benchmark **YOLO vs RF‑DETR** across chip sizes & size bins.
-
----
-
-## 📜 License
-
-MIT — see `LICENSE`.
-
----
-
-## 🙏 Acknowledgements
-
-- Ultralytics YOLO
-- RF‑DETR
-- Rasterio, GeoPandas, Shapely, Folium, Supervision
+MIT. See [LICENSE](LICENSE).
